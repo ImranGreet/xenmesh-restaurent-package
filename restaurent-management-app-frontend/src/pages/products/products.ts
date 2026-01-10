@@ -9,6 +9,8 @@ export const ProductService = {
                     image: 'bamboo-watch.jpg',
                     price: 65,
                     category: 'Accessories',
+                    status:'active',
+                    stock:100,
                     quantity: 24,
                     inventoryStatus: 'INSTOCK',
                     rating: 5

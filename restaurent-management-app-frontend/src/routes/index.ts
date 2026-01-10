@@ -46,6 +46,11 @@ const routes: RouteRecordRaw[] = [
         name: "role-permissions",
       },
       {
+        path: "order-list",
+        component: () => import("../pages/order/RecentOrder.vue"),
+        name: "order-list",
+      },
+      {
         path: "/order",
         component: () => import("../pages/order/Createorder.vue"),
         children: [

@@ -1,8 +1,6 @@
 <template>
     <div class="w-full py-2.5 px-2 border-b border-gray-300/70 fixed left-0 right-0 top-0 z-50 bg-white">
-        <Button
-        @click="sidebarToggling"
-        class="flex flex-col justify-center items-center  p-btn">
+        <Button @click="sidebarToggling" class="flex flex-col justify-center items-center  p-btn">
             <svg class="w-5 h-5 ">
                 <use href="#hamburger-menu" />
             </svg>
@@ -21,12 +19,13 @@ import { sidebarToggling } from '../../scripts/Common/helper';
     background-color: white;
     color: gray;
     border: none;
-    border-radius:0;
+    border-radius: 0;
 }
-.p-button.p-btn:hover{
-     background-color:white;
-     color: gray;
+
+.p-button.p-btn:hover {
+    background-color: white;
+    color: gray;
     border: none;
-    border-radius:0;
+    border-radius: 0;
 }
 </style>

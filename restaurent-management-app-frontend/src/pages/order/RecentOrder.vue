@@ -4,7 +4,7 @@
             <h1>Products</h1>
             <div class="flex gap-2">
                 <div class="flex flex-col gap-2">
-                    <InputText name="username" type="text" placeholder="Search Expenses" />
+                    <InputText name="username" type="text" placeholder="Search Order" />
                 </div>
                 <div class="flex gap-2">
                     <Button type="button">
@@ -19,11 +19,11 @@
                         </svg>
                         <span>Filter</span>
                     </Button>
-                    <Button type="button">
+                    <Button type="button" @click="addNewOrder">
                         <svg class="w-5 h-5 ">
                             <use href="#plus-icon" />
                         </svg>
-                        <span> New Expenses</span>
+                        <span> New Order</span>
                     </Button>
 
                 </div>
@@ -45,6 +45,12 @@
 <script setup>
 import { Button, Column, DataTable, InputText } from 'primevue';
 import { ref } from 'vue';
+import router from '../../routes';
+
+
+let addNewOrder = function () {
+    router.push({ name: `create-order` });
+}
 
 
 const customers = ref([

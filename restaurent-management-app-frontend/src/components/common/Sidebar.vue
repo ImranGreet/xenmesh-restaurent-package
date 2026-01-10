@@ -10,6 +10,11 @@
                     </router-link>
                 </li>
                 <li>
+                    <router-link :to="{ name: 'order-list' }" class="capitalize text-md font-semibold">
+                        Recent Order
+                    </router-link>
+                </li>
+                <li>
                     <router-link :to="{ name: 'products' }" class="capitalize text-md font-semibold">
                         Prodcuts
                     </router-link>
@@ -32,9 +37,13 @@
                         Permissions
                     </router-link>
                 </li>
+                <li>
+                    <router-link :to="{ name: 'profile-details' }" class="capitalize text-md font-semibold">Profile
+                    </router-link>
+                </li>
             </ul>
-            <div class="w-full flex flex-col justify-start px-3">
-               <AuthGurd></AuthGurd>
+            <div class="w-full flex flex-col justify-start px-3 mt-5">
+                <AuthGurd></AuthGurd>
             </div>
         </div>
     </div>
@@ -48,5 +57,15 @@ import AuthGurd from '../Auth/AuthGurd.vue';
 <style scoped>
 .transtion-all {
     transition: all 0.3s ease-in-out;
+}
+
+.router-link-exact-active {
+    color: #41B883;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.48px;
+    border-width: 0px 0px 0px 2px;
+    border-color: #41B883;
+    padding-left: 5px;
 }
 </style>
