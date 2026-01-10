@@ -5,7 +5,7 @@
         <div class="flex-1">
             <div class="w-full flex">
                 <Sidebar></Sidebar>
-                <div class="flex-1">
+                <div class="flex-1 mt-5">
                     <router-view></router-view>
                 </div>
             </div>

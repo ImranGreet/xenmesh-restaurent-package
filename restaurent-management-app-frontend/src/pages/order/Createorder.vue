@@ -1,14 +1,16 @@
 <template>
-    <div class="w-full flex">
+    <div class="w-full flex gap-10">
         <OrderMenu></OrderMenu>
-       <div class="flex-1 bg-red-400">
-        <!-- <router-view></router-view> -->
-       </div>
+        <div class="w-full flex-1">
+            <router-view></router-view>
+        </div>
+        <div class="border-l w-86">
+            <OrderManagement></OrderManagement>
+        </div>
     </div>
 </template>
 
 <script lang="ts" setup>
+import OrderManagement from './OrderManagement.vue';
 import OrderMenu from './OrderMenu.vue';
-
-
 </script>
