@@ -1,12 +1,32 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Route;
+
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Roles
+    Route::get('/roles', [RolePermissionController::class, 'roles']);
+    Route::post('/roles', [RolePermissionController::class, 'createRole']);
+    Route::post('/roles/{id}/permissions', [RolePermissionController::class, 'assignPermissions']);
+
+    // Permissions
+    Route::get('/permissions', [RolePermissionController::class, 'permissions']);
+    Route::post('/permissions', [RolePermissionController::class, 'createPermission']);
+});
+
 
 Route::middleware('auth:sanctum')->controller(OrderController::class)->group(function () {
     Route::get('/recent-order', 'showRecentOrder');
