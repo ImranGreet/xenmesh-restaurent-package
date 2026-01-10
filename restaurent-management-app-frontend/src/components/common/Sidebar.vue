@@ -1,13 +1,52 @@
 <template>
-    <div class="h-screen  text-white" :class="{ 'w-64 px-4 bg-red-100': sidebarDefault, 'w-0': !sidebarDefault }">
-        <div class="w-full" v-if="sidebarDefault">
-            <h1>Header</h1>
+    <div class="h-screen  text-white fixed left-0 top-10 bottom-0">
+        <div class="w-full h-screen">
+            <div class="w-full h-20"></div>
+
+            <ul class="flex flex-col gap-2 px-3">
+                <li>
+                    <router-link :to="{ name: 'create-order' }" class="capitalize text-md font-semibold">
+                        Create Order
+                    </router-link>
+                </li>
+                <li>
+                    <router-link :to="{ name: 'products' }" class="capitalize text-md font-semibold">
+                        Prodcuts
+                    </router-link>
+                </li>
+                <li>
+                    <router-link :to="{ name: 'expenses-list' }" class="capitalize text-md font-semibold">
+                        Expenses
+                    </router-link>
+                </li>
+                <li>
+                    <router-link :to="{ name: 'income-list' }" class="capitalize text-md font-semibold">Income
+                    </router-link>
+                </li>
+                <li>
+                    <router-link :to="{ name: 'stuff' }" class="capitalize text-md font-semibold">Stuff
+                    </router-link>
+                </li>
+                <li>
+                    <router-link :to="{ name: 'role-permissions' }" class="capitalize text-md font-semibold">Role and
+                        Permissions
+                    </router-link>
+                </li>
+            </ul>
+            <div class="w-full flex flex-col justify-start px-3">
+               <AuthGurd></AuthGurd>
+            </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { sidebarDefault } from '../../scripts/Common/helper';
-
+import AuthGurd from '../Auth/AuthGurd.vue';
 
 </script>
+
+<style scoped>
+.transtion-all {
+    transition: all 0.3s ease-in-out;
+}
+</style>

@@ -4,7 +4,7 @@
         <div class="w-full flex-1">
             <router-view></router-view>
         </div>
-        <div class="border-l w-86">
+        <div class="border-l border-gray-400/35 w-86">
             <OrderManagement></OrderManagement>
         </div>
     </div>
