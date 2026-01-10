@@ -19,7 +19,7 @@
                         </svg>
                         <span>Filter</span>
                     </Button>
-                    <Button type="button" >
+                    <Button type="button">
                         <svg class="w-5 h-5 ">
                             <use href="#plus-icon" />
                         </svg>
@@ -87,7 +87,6 @@
     </section>
 </template>
 
-
 <script setup>
 import { ref, onMounted } from 'vue';
 import { ProductService } from './products';
@@ -99,10 +98,7 @@ onMounted(() => {
 
 const products = ref();
 
-
 const visible = ref(false);
-
-
 
 </script>
 
