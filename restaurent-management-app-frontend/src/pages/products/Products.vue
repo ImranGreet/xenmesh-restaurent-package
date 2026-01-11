@@ -1,8 +1,8 @@
 <template>
     <section>
-        <div class="w-full flex justify-between items-center">
-            <h1>Products</h1>
-            <div class="flex gap-2">
+        <div class="w-full flex flex-col md:flex-row justify-between items-start md:items-center">
+            <h1 class="px-3 pt-2 text-2xl font-semibold">Products</h1>
+            <div class="flex flex-col md:flex-row gap-2 px-2 md:px-0">
                 <div class="flex flex-col gap-2">
                     <InputText name="username" type="text" placeholder="Search Products" />
                 </div>
@@ -31,7 +31,8 @@
             </div>
         </div>
         <div class="card">
-            <DataTable :value="products" tableStyle="min-width: 50rem">
+            <DataTable tableStyle="min-width: 50rem" :value="products" paginator :rows="meta.per_page"
+                :totalRecords="meta.total" lazy @page="onPageChange">
 
                 <Column field="id" header="Id" />
                 <Column field="name" header="Name" />
@@ -68,6 +69,8 @@
                 </Column>
 
             </DataTable>
+
+
             <Dialog v-model:visible="visible" modal header="Edit Profile" :style="{ width: '25rem' }">
                 <span class="text-surface-500 dark:text-surface-400 block mb-8">Update your information.</span>
                 <div class="flex items-center gap-4 mb-4">
@@ -90,16 +93,22 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { ProductService } from './products';
-import { Button, Column, DataTable, Dialog, InputText } from 'primevue';
-
-onMounted(() => {
-    ProductService.getProductsMini().then((data) => (products.value = data));
-});
-
-const products = ref();
+import { Button, Column, DataTable, Dialog, InputText, Paginator } from 'primevue';
+import useProductStore from '../../store/products';
+import { storeToRefs } from 'pinia';
 
 const visible = ref(false);
 
+const productsStore = useProductStore();
+const { retrieveProducts } = productsStore;
+const { products, meta } = storeToRefs(productsStore);
+onMounted(async () => {
+    await retrieveProducts();
+});
+
+const onPageChange = (event) => {
+    retrieveProducts(event.page + 1); 
+};
 </script>
 
 

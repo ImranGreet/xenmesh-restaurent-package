@@ -36,7 +36,7 @@ Route::middleware('auth:sanctum')->controller(OrderController::class)->group(fun
 });
 
 
-Route::middleware('auth:sanctum')->controller(ProductController::class)->group(function () {
+Route::controller(ProductController::class)->group(function () {
     Route::get('/products', 'index');
     Route::post('/create-product', 'store');
     Route::put('/update-product/{id}', 'update');
