@@ -13,13 +13,13 @@
                         </svg>
                         <span>Short</span>
                     </Button>
-                    <Button type="button">
+                    <Button type="button" @click="visible = true">
                         <svg class="w-5 h-5 ">
                             <use href="#filter-icon" />
                         </svg>
                         <span>Filter</span>
                     </Button>
-                    <Button type="button">
+                    <Button type="button" @click="visibleRight = true">
                         <svg class="w-5 h-5 ">
                             <use href="#plus-icon" />
                         </svg>
@@ -35,7 +35,8 @@
                 :totalRecords="meta.total" lazy @page="onPageChange">
 
                 <Column field="id" header="Id" />
-                <Column field="name" header="Name" />
+                <Column field="name_bn" header="Name" />
+                <Column field="name_en" header="Name" />
                 <Column field="category" header="Category" />
                 <Column field="stock" header="Stock" />
                 <Column field="status" header="Status" />
@@ -44,7 +45,7 @@
                 <Column header="Action" style="width: 12rem">
                     <template #body="slotProps">
                         <div class="flex gap-0.5">
-                            <Button type="button" label="edit" @click="visible = true" class="action-btn">
+                            <Button type="button" label="edit"  class="action-btn">
                                 <svg class="w-5 h-5 ">
                                     <use href="#pencil-icon-edit" />
                                 </svg>
@@ -87,14 +88,77 @@
                 </div>
             </Dialog>
         </div>
+
+        <Drawer v-model:visible="visibleRight" header="Right Drawer" position="right">
+            <!-- Slide Drawer Form -->
+            <div class="fixed top-0 right-0 h-full w-96 bg-white shadow-lg overflow-y-auto z-50">
+                <div class="p-6">
+                    <!-- Header -->
+                    <h2 class="text-2xl font-semibold mb-4">Add New Product</h2>
+
+                    <!-- Form -->
+                    <form class="space-y-4">
+
+                        <!-- Product Name -->
+                        <div>
+                            <label for="product-name" class="block text-sm font-medium text-gray-700">Product
+                                Name</label>
+                            <InputText type="text" id="product-name" name="product-name"
+                                placeholder="Enter product name"
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                        </div>
+                        <!-- category -->
+                        <div class="card flex justify-center">
+                            <Select v-model="selectedCity" :options="cities" optionLabel="name"
+                                placeholder="Select a City" class="w-full" />
+                        </div>
+
+                        <!-- Price -->
+                        <div>
+                            <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+                            <InputNumber v-model="value1" inputId="integeronly" fluid />
+
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                            <Textarea v-model="value" rows="5" cols="30" class="w-full border border-gray-400/35 rounded-md" />
+                        </div>
+
+                        <!-- Image Upload -->
+                        <div class="w-full flex flex-col gap-4 border border-gray-400/35 px-3 py-5 rounded-lg">
+                            <label for="description" class="block text-sm font-medium text-gray-700">Upload File</label>
+
+                            <div class="card w-full flex justify-center">
+                                <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*"
+                                    :maxFileSize="1000000" @upload="onUpload" :auto="true" chooseLabel="Browse"
+                                    class="w-full" />
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-4 w-full flex justify-between gap-5">
+                            <Button type="submit" class="w-full">
+                                Submit
+                            </Button>
+                            <Button class="w-full">
+                                Cancel
+                            </Button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </Drawer>
     </section>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { ProductService } from './products';
-import { Button, Column, DataTable, Dialog, InputText, Paginator } from 'primevue';
-import useProductStore from '../../store/products';
+import { Button, Column, DataTable, Dialog, Drawer, InputText, Paginator, FileUpload, Select, InputNumber, Textarea } from 'primevue';
+import useProductStore from './products';
 import { storeToRefs } from 'pinia';
 
 const visible = ref(false);
@@ -102,12 +166,28 @@ const visible = ref(false);
 const productsStore = useProductStore();
 const { retrieveProducts } = productsStore;
 const { products, meta } = storeToRefs(productsStore);
+
+const visibleRight = ref(false);
+
+const value = ref('');
+
+
+const selectedCity = ref();
+const cities = ref([
+    { name: 'New York', code: 'NY' },
+    { name: 'Rome', code: 'RM' },
+    { name: 'London', code: 'LDN' },
+    { name: 'Istanbul', code: 'IST' },
+    { name: 'Paris', code: 'PRS' }
+]);
+
+
 onMounted(async () => {
     await retrieveProducts();
 });
 
 const onPageChange = (event) => {
-    retrieveProducts(event.page + 1); 
+    retrieveProducts(event.page + 1);
 };
 </script>
 
@@ -127,5 +207,13 @@ const onPageChange = (event) => {
 
 .p-button.action-btn.delete {
     color: rgb(247, 178, 178);
+}
+
+button .p-paginator-page.p-paginator-page-selected {
+    background-color: rgb(34, 30, 30) !important;
+}
+
+.p-fileupload.p-fileupload-basic.p-component {
+    width: 100%;
 }
 </style>
