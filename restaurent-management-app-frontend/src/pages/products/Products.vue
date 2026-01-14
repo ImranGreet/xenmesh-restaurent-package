@@ -19,7 +19,7 @@
                         </svg>
                         <span>Filter</span>
                     </Button>
-                    <Button type="button" @click="visibleRight = true">
+                    <Button type="button" @click="visibleProductInfo = true">
                         <svg class="w-5 h-5 ">
                             <use href="#plus-icon" />
                         </svg>
@@ -45,7 +45,7 @@
                 <Column header="Action" style="width: 12rem">
                     <template #body="slotProps">
                         <div class="flex gap-0.5">
-                            <Button type="button" label="edit"  class="action-btn">
+                            <Button type="button" label="edit" class="action-btn">
                                 <svg class="w-5 h-5 ">
                                     <use href="#pencil-icon-edit" />
                                 </svg>
@@ -72,16 +72,8 @@
             </DataTable>
 
 
-            <Dialog v-model:visible="visible" modal header="Edit Profile" :style="{ width: '25rem' }">
-                <span class="text-surface-500 dark:text-surface-400 block mb-8">Update your information.</span>
-                <div class="flex items-center gap-4 mb-4">
-                    <label for="username" class="font-semibold w-24">Username</label>
-                    <InputText id="username" class="flex-auto" autocomplete="off" />
-                </div>
-                <div class="flex items-center gap-4 mb-8">
-                    <label for="email" class="font-semibold w-24">Email</label>
-                    <InputText id="email" class="flex-auto" autocomplete="off" />
-                </div>
+            <Dialog v-model:visible="visible" modal header="Filter" :style="{ width: '45rem' }">
+                <FilterProduct/>
                 <div class="flex justify-end gap-2">
                     <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
                     <Button type="button" label="Save" @click="visible = false"></Button>
@@ -89,98 +81,72 @@
             </Dialog>
         </div>
 
-        <Drawer v-model:visible="visibleRight" header="Right Drawer" position="right">
+        <Dialog v-model:visible="visibleProductInfo" modal header="Add New Product" :style="{ width: '45rem' }">
             <!-- Slide Drawer Form -->
-            <div class="fixed top-0 right-0 h-full w-96 bg-white shadow-lg overflow-y-auto z-50">
+            <div class=" bg-white  z-50">
                 <div class="p-6">
                     <!-- Header -->
-                    <h2 class="text-2xl font-semibold mb-4">Add New Product</h2>
+                    <h2 class="text-2xl font-semibold mb-4">Product Information</h2>
 
                     <!-- Form -->
                     <form class="space-y-4">
 
-                        <!-- Product Name -->
-                        <div>
-                            <label for="product-name" class="block text-sm font-medium text-gray-700">Product
-                                Name</label>
-                            <InputText type="text" id="product-name" name="product-name"
-                                placeholder="Enter product name"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                        </div>
-                        <!-- category -->
-                        <div class="card flex justify-center">
-                            <Select v-model="selectedCity" :options="cities" optionLabel="name"
-                                placeholder="Select a City" class="w-full" />
+                        <div class="w-full" v-if="productInformation.showBasicInfo">
+                            <BasicProductInfo></BasicProductInfo>
                         </div>
 
-                        <!-- Price -->
-                        <div>
-                            <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
-                            <InputNumber v-model="value1" inputId="integeronly" fluid />
+                        <div class="w-full" v-if="productInformation.showPricingInfo">
+                            <PriceInfo></PriceInfo>
 
                         </div>
-
-                        <!-- Description -->
-                        <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <Textarea v-model="value" rows="5" cols="30" class="w-full border border-gray-400/35 rounded-md" />
-                        </div>
-
-                        <!-- Image Upload -->
-                        <div class="w-full flex flex-col gap-4 border border-gray-400/35 px-3 py-5 rounded-lg">
-                            <label for="description" class="block text-sm font-medium text-gray-700">Upload File</label>
-
-                            <div class="card w-full flex justify-center">
-                                <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*"
-                                    :maxFileSize="1000000" @upload="onUpload" :auto="true" chooseLabel="Browse"
-                                    class="w-full" />
-                            </div>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <div class="pt-4 w-full flex justify-between gap-5">
-                            <Button type="submit" class="w-full">
-                                Submit
-                            </Button>
-                            <Button class="w-full">
-                                Cancel
-                            </Button>
-                        </div>
-
                     </form>
                 </div>
             </div>
-
-        </Drawer>
+            <!-- Submit Button -->
+            <div class="pt-4 w-full flex justify-end gap-5">
+                <Button type="submit" class="w-auto">
+                    Submit
+                </Button>
+                <Button class="w-auto" @click="visibleProductInfo = false">
+                    Cancel
+                </Button>
+                <Button class="w-auto border border-gray-400/30" @click="addNext" severity="secondary">
+                    Next
+                </Button>
+            </div>
+        </Dialog>
     </section>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { Button, Column, DataTable, Dialog, Drawer, InputText, Paginator, FileUpload, Select, InputNumber, Textarea } from 'primevue';
+import { Button, Column, DataTable, Dialog, Drawer, InputText, Paginator, FileUpload, Select, InputNumber, Textarea, ToggleSwitch } from 'primevue';
 import useProductStore from './products';
 import { storeToRefs } from 'pinia';
+import BasicProductInfo from './AddNewProduct/BasicProductInfo.vue';
+import PriceInfo from './AddNewProduct/PriceInfo.vue';
+import FilterProduct from './FilterProduct.vue';
 
 const visible = ref(false);
 
+const visibleProductInfo = ref(false);
 const productsStore = useProductStore();
 const { retrieveProducts } = productsStore;
 const { products, meta } = storeToRefs(productsStore);
 
-const visibleRight = ref(false);
 
-const value = ref('');
+const productInformation = ref({
+    showBasicInfo: true,
+    showPricingInfo: false,
+    showVariantInfo: false,
+});
 
 
-const selectedCity = ref();
-const cities = ref([
-    { name: 'New York', code: 'NY' },
-    { name: 'Rome', code: 'RM' },
-    { name: 'London', code: 'LDN' },
-    { name: 'Istanbul', code: 'IST' },
-    { name: 'Paris', code: 'PRS' }
-]);
 
+const addNext = function () {
+    productInformation.value.showBasicInfo = !productInformation.value.showBasicInfo;
+    productInformation.value.showPricingInfo = !productInformation.value.showPricingInfo;
+}
 
 onMounted(async () => {
     await retrieveProducts();
