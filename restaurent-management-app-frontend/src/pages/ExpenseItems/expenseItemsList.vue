@@ -32,7 +32,7 @@
 
         <!-- Table -->
         <div class="card">
-            <DataTable :value="items" lazy paginator :rows="perPage" :totalRecords="totalRecords" :loading="loading" 
+            <DataTable :value="items" lazy paginator :rows="perPage" :totalRecords="totalRecords" :loading="loading"
                 sortMode="single" :rowsPerPageOptions="[5, 10, 20, 50]" @page="onPage" @sort="onSort" scrollable
                 scrollHeight="700px">
                 <!-- Name EN -->
@@ -55,7 +55,7 @@
                 <Column header="Actions" class="flex justify-end">
                     <template #body="{ data }">
                         <div class="flex gap-1 justify-end">
-                            <Button type="button" label="Edit"  >
+                            <Button type="button" label="Edit">
                                 <svg class="w-2.5 h-2.5">
                                     <use href="#pencil-icon-edit" />
                                 </svg>
@@ -76,9 +76,8 @@
             <form class="flex flex-col gap-4">
                 <InputText placeholder="Name (EN)" required />
                 <InputText placeholder="Name (BN)" required />
-                <InputText placeholder="Category" />
-                <Checkbox />
-                <Button type="submit" label="Add Expense" :loading="store.loading" />
+                <Select :options="expenseCategories" optionLabel="slug" optionValue="id" placeholder="Category" />
+                <Button type="submit" label="Submit" :loading="store.loading" />
             </form>
         </Dialog>
 
@@ -96,12 +95,15 @@ import DataTable from 'primevue/datatable'
 import InputText from 'primevue/inputtext'
 import Tag from 'primevue/tag'
 import Dialog from 'primevue/dialog'
-import Checkbox from 'primevue/checkbox'
+
 
 import { useExpenseItemsStore } from '../../store/expenseItems'
+import { Select } from 'primevue'
 
 const store = useExpenseItemsStore()
-const { items, loading } = storeToRefs(store)
+const { items, loading, expenseCategories } = storeToRefs(store);
+
+const { retrieveExpenseCategories } = store
 
 const search = ref('')
 const perPage = ref(10)
@@ -134,5 +136,6 @@ const onSort = (event: any) => {
 /* Initial load */
 onMounted(() => {
     loadData();
+    retrieveExpenseCategories();
 })
 </script>

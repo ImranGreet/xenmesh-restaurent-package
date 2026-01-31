@@ -75,6 +75,7 @@ Route::controller(ExpenseItemController::class)
         Route::put('/update-expense-item/{id}', 'update');
         Route::delete('/delete-expense-item/{id}', 'destroy');
         Route::get('/active-expense-items', 'getActiveExpenseItems');
+        Route::get('/retrive-expense-categories', 'getExpenseCategory');
     });
 
 Route::controller(IncomeController::class)

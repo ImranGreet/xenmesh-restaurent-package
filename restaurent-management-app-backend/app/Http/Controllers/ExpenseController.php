@@ -44,6 +44,10 @@ class ExpenseController extends Controller
                 ]);
             }
 
+            // ✅ CLONE query for total sum (before pagination)
+            $totalAmount = (clone $query)->sum('amount');
+
+            // Pagination
             $expenses = $query->latest()->paginate($perPage);
 
             if ($expenses->isEmpty()) {
@@ -51,7 +55,8 @@ class ExpenseController extends Controller
                     'success' => false,
                     'message' => 'No expenses found.',
                     'data' => [],
-                    'meta' => null
+                    'meta' => null,
+                    'total_amount' => 0
                 ], 404);
             }
 
@@ -64,7 +69,9 @@ class ExpenseController extends Controller
                     'last_page'    => $expenses->lastPage(),
                     'per_page'     => $expenses->perPage(),
                     'total'        => $expenses->total(),
-                ]
+                ],
+                // ✅ SEND TOTAL
+                'total_amount' => $totalAmount
             ], 200);
         } catch (Throwable $e) {
             Log::error('Expense Fetch Error', ['error' => $e->getMessage()]);
@@ -75,6 +82,7 @@ class ExpenseController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Create expense

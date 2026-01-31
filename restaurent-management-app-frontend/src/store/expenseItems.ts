@@ -13,6 +13,7 @@ export const useExpenseItemsStore = defineStore("expenseItems", () => {
   const sortField = ref("id");
   const sortOrder = ref<"asc" | "desc">("asc");
   const loading = ref(false);
+  const expenseCategories = ref([]);
 
   const fetchExpenseItems = async (page = 1, perPage = 10) => {
     loading.value = true;
@@ -29,7 +30,6 @@ export const useExpenseItemsStore = defineStore("expenseItems", () => {
           },
         },
       );
-      
 
       items.value = response.data.data;
       meta.value = response.data.meta;
@@ -40,7 +40,15 @@ export const useExpenseItemsStore = defineStore("expenseItems", () => {
     }
   };
 
-  
+  // Retrieve product categories
+  const retrieveExpenseCategories = async () => {
+    try {
+      const response = await axios.get(`/api/retrive-expense-categories`);
+      expenseCategories.value = response.data.data;
+    } catch (err: any) {
+      console.log(err);
+    }
+  };
 
   const totalRecords = () => meta.value?.total ?? 0;
   const perPage = () => meta.value?.per_page ?? 10;
@@ -53,7 +61,7 @@ export const useExpenseItemsStore = defineStore("expenseItems", () => {
     loading,
     sortField,
     sortOrder,
-
+    expenseCategories,
     // getters
     totalRecords,
     perPage,
@@ -61,5 +69,6 @@ export const useExpenseItemsStore = defineStore("expenseItems", () => {
 
     // actions
     fetchExpenseItems,
+    retrieveExpenseCategories,
   };
 });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\ExpenseItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -110,6 +111,17 @@ class ExpenseItemController extends Controller
             ->get();
         return response()->json([
             'data' => $expenseItems
+        ]);
+    }
+
+
+    public function getExpenseCategory()
+    {
+
+        $expenseCategories = Category::where('type', 'expense')->get();
+        return response()->json([
+            'success' => true,
+            'data' => $expenseCategories,
         ]);
     }
 }

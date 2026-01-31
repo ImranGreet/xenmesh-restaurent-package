@@ -10,6 +10,7 @@ interface PaginatedExpenseResponse {
   meta: PaginationMeta;
   success: boolean;
   message: string;
+  totalAmount:string,
 }
 
 interface CreateExpensePayload {
@@ -37,6 +38,7 @@ export const useExpenseStore = defineStore("expenses", () => {
   const meta = ref<PaginationMeta | null>(null);
   const loading = ref<boolean>(false);
   const expenseItems = ref<ExpenseItem[]>([]);
+  const totalAmount = ref();
 
   const sortField = ref<string>("id");
   const sortOrder = ref<"asc" | "desc">("desc");
@@ -61,6 +63,8 @@ export const useExpenseStore = defineStore("expenses", () => {
       if (response.data.success) {
         expenses.value = response.data.data;
         meta.value = response.data.meta;
+        totalAmount.value = response.data.total_amount;
+        console.log(response.data.total_amount,'total expenses');
       }
     } catch (error) {
       console.error("Failed to fetch expenses", error);
@@ -163,6 +167,7 @@ export const useExpenseStore = defineStore("expenses", () => {
     sortField,
     sortOrder,
     expenseItems,
+    totalAmount,
     // getters
     totalRecords,
     perPage,

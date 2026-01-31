@@ -48,9 +48,9 @@
                 </Column>
 
                 <!-- Action Column -->
-                <Column header="Action" style="width: 12rem">
+                <Column header="Action" class="flex justify-end">
                     <template #body="slotProps">
-                        <div class="flex gap-0.5">
+                        <div class="flex gap-0.5 justify-end">
                             <Button type="button" label="edit" class="action-btn">
                                 <svg class="w-5 h-5 ">
                                     <use href="#pencil-icon-edit" />
@@ -109,7 +109,7 @@
                                     <div class="card w-full flex justify-center">
                                         <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*"
                                             :maxFileSize="1000000" @upload="" :auto="true" chooseLabel="Browse"
-                                            class="w-full" />
+                                             />
                                     </div>
                                 </div>
 
@@ -133,8 +133,8 @@
                                         <label for="product-name"
                                             class="block text-sm font-medium text-gray-700 mb-2">Product
                                             Name</label>
-                                        <InputText type="text" id="product-name" name="product-name"
-                                            placeholder="Enter product name"
+                                        <InputText type="text" v-model="productName" id="product-name"
+                                            name="product-name" placeholder="Enter product name"
                                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                     </div>
                                     <!-- category -->
@@ -153,7 +153,7 @@
                                 <!-- Price -->
                                 <div>
                                     <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
-                                    <InputNumber inputId="integeronly" fluid />
+                                    <InputNumber v-model="productPrice" inputId="integeronly" fluid />
 
                                 </div>
 
@@ -161,7 +161,7 @@
                                 <div>
                                     <label for="description"
                                         class="block text-sm font-medium text-gray-700">Description</label>
-                                    <Textarea v-model="value" rows="2" cols="10"
+                                    <Textarea v-model="productDetails" rows="2" cols="10"
                                         class="w-full border border-gray-400/35 rounded-md" />
                                 </div>
                                 <!-- category -->
@@ -227,7 +227,7 @@ const visible = ref(false);
 
 const visibleProductInfo = ref(false);
 const productsStore = useProductStore();
-const { retrieveProducts, toggleProductStatus, retrieveProductCategories } = productsStore;
+const { retrieveProducts, toggleProductStatus, retrieveProductCategories, createProduct } = productsStore;
 const { products, meta, productCategories } = storeToRefs(productsStore);
 
 
@@ -278,6 +278,24 @@ onMounted(async () => {
 const onPageChange = (event) => {
     retrieveProducts(event.page + 1);
 };
+
+let productName = ref("");
+let categoryId = ref<number>();
+let productPrice = ref<number>();
+let productStock = ref<number>();
+let productDetails = ref<string>("");
+
+let payload = {
+    name: productName.value,
+    category_id: categoryId,
+    price: productPrice.value,
+    stock: productStock.value,
+    description: productDetails.value
+}
+
+let productSubmit = async function () {
+    await createProduct(payload);
+}
 </script>
 
 

@@ -40,7 +40,7 @@
                 <Column field="amount" header="Amount" />
                 <Column field="expense_date" header="Expense Date" />
 
-                <Column header="Actions"  class="flex justify-end">
+                <Column header="Actions" class="flex justify-end">
                     <template #body="{ data }">
                         <div class="flex gap-1 justify-end">
                             <Button type="button" label="Edit" @click="openEditDialog(data)">
@@ -56,6 +56,14 @@
                         </div>
                     </template>
                 </Column>
+
+                <ColumnGroup type="footer">
+                    <Row>
+                        <Column footer="Totals:" :colspan="2" footerStyle="text-align:right" />
+                        <Column :footer="totalAmount" />
+                    </Row>
+                </ColumnGroup>
+
             </DataTable>
         </div>
 
@@ -178,15 +186,17 @@ import {
     DatePicker,
     Select,
     Dialog,
+    Row,
+    ColumnGroup
 } from "primevue";
-import { onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { storeToRefs } from "pinia";
 import useExpenseStore from "../../store/expense";
 
 /* ---------------- Store ---------------- */
 const expenseStore = useExpenseStore();
-const { expenses, meta, loading, expenseItems } = storeToRefs(expenseStore);
-const { fetchExpenses, addExpense, fetchExpenseItems ,deleteExpense} = expenseStore;
+const { expenses, meta, loading, expenseItems ,totalAmount} = storeToRefs(expenseStore);
+const { fetchExpenses, addExpense, fetchExpenseItems, deleteExpense } = expenseStore;
 
 /* ---------------- Pagination State ---------------- */
 const rows = ref<number>(10);
@@ -347,6 +357,8 @@ const handleUpdate = async () => {
         loading.value = false;
     }
 };
+
+
 
 
 </script>
