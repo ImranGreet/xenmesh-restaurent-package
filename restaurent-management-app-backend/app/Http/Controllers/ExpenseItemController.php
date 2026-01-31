@@ -101,4 +101,15 @@ class ExpenseItemController extends Controller
             'message' => 'Expense item deleted successfully',
         ]);
     }
+
+    // needed in several places
+    public static function getActiveExpenseItems()
+    {
+        $expenseItems = ExpenseItem::where('is_active', true)
+            ->orderBy('name_en', 'asc')
+            ->get();
+        return response()->json([
+            'data' => $expenseItems
+        ]);
+    }
 }

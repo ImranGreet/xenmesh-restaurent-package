@@ -32,7 +32,7 @@
 
         <!-- Table -->
         <div class="card">
-            <DataTable :value="items" lazy paginator :rows="perPage" :totalRecords="totalRecords" :loading="loading"
+            <DataTable :value="items" lazy paginator :rows="perPage" :totalRecords="totalRecords" :loading="loading" 
                 sortMode="single" :rowsPerPageOptions="[5, 10, 20, 50]" @page="onPage" @sort="onSort" scrollable
                 scrollHeight="700px">
                 <!-- Name EN -->
@@ -49,6 +49,23 @@
                     <template #body="{ data }">
                         <Tag :value="data.is_active ? 'Active' : 'Inactive'"
                             :severity="data.is_active ? 'success' : 'danger'" />
+                    </template>
+                </Column>
+
+                <Column header="Actions" class="flex justify-end">
+                    <template #body="{ data }">
+                        <div class="flex gap-1 justify-end">
+                            <Button type="button" label="Edit"  >
+                                <svg class="w-2.5 h-2.5">
+                                    <use href="#pencil-icon-edit" />
+                                </svg>
+                            </Button>
+                            <Button type="button" label="Delete" severity="danger">
+                                <svg class="w-2.5 h-2.5">
+                                    <use href="#trash-icon" />
+                                </svg>
+                            </Button>
+                        </div>
                     </template>
                 </Column>
             </DataTable>

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Throwable;
+
 class ExpenseController extends Controller
 {
     /**
@@ -65,7 +66,6 @@ class ExpenseController extends Controller
                     'total'        => $expenses->total(),
                 ]
             ], 200);
-
         } catch (Throwable $e) {
             Log::error('Expense Fetch Error', ['error' => $e->getMessage()]);
 
@@ -84,10 +84,10 @@ class ExpenseController extends Controller
         try {
             $validated = $request->validate([
                 'title'        => 'required|string|max:255',
-                'category'     => 'required|string|in:utility,salary,purchase,maintenance,others',
+                'category'     => 'string',
                 'amount'       => 'required|numeric|min:0',
                 'expense_date' => 'required|date',
-                'status'       => 'required|in:paid,unpaid',
+                'status'       => 'string',
                 'note'         => 'nullable|string',
             ]);
 
@@ -98,14 +98,12 @@ class ExpenseController extends Controller
                 'message' => 'Expense created successfully.',
                 'data' => $expense
             ], 201);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed.',
                 'errors' => $e->errors()
             ], 422);
-
         } catch (Throwable $e) {
             Log::error('Expense Create Error', ['error' => $e->getMessage()]);
 
@@ -133,7 +131,7 @@ class ExpenseController extends Controller
 
             $validated = $request->validate([
                 'title'        => 'sometimes|string|max:255',
-                'category'     => 'sometimes|string|in:utility,salary,purchase,maintenance,others',
+                'category'     => 'string',
                 'amount'       => 'sometimes|numeric|min:0',
                 'expense_date' => 'sometimes|date',
                 'status'       => 'sometimes|in:paid,unpaid',
@@ -147,14 +145,12 @@ class ExpenseController extends Controller
                 'message' => 'Expense updated successfully.',
                 'data' => $expense->fresh()
             ], 200);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed.',
                 'errors' => $e->errors()
             ], 422);
-
         } catch (Throwable $e) {
             Log::error('Expense Update Error', [
                 'expense_id' => $id,
@@ -189,7 +185,6 @@ class ExpenseController extends Controller
                 'success' => true,
                 'message' => 'Expense deleted successfully.'
             ], 200);
-
         } catch (Throwable $e) {
             Log::error('Expense Delete Error', [
                 'expense_id' => $id,

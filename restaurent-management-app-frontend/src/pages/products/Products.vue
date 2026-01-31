@@ -31,8 +31,9 @@
             </div>
         </div>
         <div class="card">
-            <DataTable tableStyle="min-width: 50rem" :value="products" paginator :rows="meta.per_page"
-                :totalRecords="meta.total" lazy @page="onPageChange">
+            <DataTable tableStyle="min-width: 50rem" :value="products" paginator :rows="meta.per_page" scrollable
+                scrollHeight="700px" :rowsPerPageOptions="[5, 10, 20, 50, 100]" :totalRecords="meta.total" lazy
+                @page="onPageChange">
 
                 <Column field="id" header="Id" />
                 <Column field="name_bn" header="Name" />
@@ -73,7 +74,7 @@
 
 
             <Dialog v-model:visible="visible" modal header="Filter" :style="{ width: '45rem' }">
-                <FilterProduct/>
+                <FilterProduct />
                 <div class="flex justify-end gap-2">
                     <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
                     <Button type="button" label="Save" @click="visible = false"></Button>
