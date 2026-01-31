@@ -31,58 +31,45 @@
             </div>
         </div>
         <div class="card">
-            <DataTable :value="customers" paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]"
+            <DataTable :value="expenses" paginator lazy :rows="rows" :first="first" :totalRecords="meta?.total || 0"
+                :rowsPerPageOptions="[5, 10, 20, 50]" :loading="loading" @page="onPageChange"
                 tableStyle="min-width: 50rem">
-                <Column field="name" header="Name" style="width: 25%" />
-                <Column field="country" header="Country" style="width: 25%" />
-                <Column field="company" header="Company" style="width: 25%" />
-                <Column field="representative" header="Representative" style="width: 25%" />
+                <Column field="title" header="Title" />
+                <Column field="category" header="Category" />
+                <Column field="amount" header="Amount" />
+                <Column field="expense_date" header="Expense Date" />
             </DataTable>
+
         </div>
     </section>
 </template>
 
-<script setup>
-import { Button, Column, DataTable, InputText } from 'primevue';
-import { ref } from 'vue';
+<script setup lang="ts">
+import { Button, Column, DataTable, InputText } from "primevue";
+import { onMounted, ref } from "vue";
+import { storeToRefs } from "pinia";
+import useExpenseStore from "../../store/expense";
 
+/* ---------------- Store ---------------- */
+const expenseStore = useExpenseStore();
+const { expenses, meta, loading } = storeToRefs(expenseStore);
+const { fetchExpenses } = expenseStore;
 
-const customers = ref([
-    {
-        name: 'Imran Hossain',
-        country: 'Bangladesh',
-        company: 'YetFix',
-        representative: 'Rahim'
-    },
-    {
-        name: 'John Doe',
-        country: 'USA',
-        company: 'TechNova',
-        representative: 'Sarah'
-    },
-    {
-        name: 'Ali Khan',
-        country: 'Pakistan',
-        company: 'Foodies Ltd',
-        representative: 'Ahmed'
-    },
-    {
-        name: 'Maria Lopez',
-        country: 'Spain',
-        company: 'Cafe Mundo',
-        representative: 'Carlos'
-    },
-    {
-        name: 'Chen Wei',
-        country: 'China',
-        company: 'Dragon Foods',
-        representative: 'Li Ming'
-    },
-    {
-        name: 'Ahmed Noor',
-        country: 'UAE',
-        company: 'Desert Bites',
-        representative: 'Khalid'
-    }
-]);
+/* ---------------- Pagination State ---------------- */
+const rows = ref<number>(10);
+const first = ref<number>(0);
+
+/* ---------------- Initial Load ---------------- */
+onMounted(() => {
+    fetchExpenses(1, rows.value);
+});
+
+/* ---------------- Page Change Handler ---------------- */
+const onPageChange = async (event: any) => {
+    first.value = event.first;
+    rows.value = event.rows;
+
+    const page = event.page + 1; // PrimeVue uses 0-based index
+    await fetchExpenses(page, rows.value);
+};
 </script>

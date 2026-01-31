@@ -25,6 +25,11 @@
                     </router-link>
                 </li>
                 <li>
+                    <router-link :to="{ name: 'expense-items-list' }" class="capitalize text-md font-semibold">
+                        Expense Items
+                    </router-link>
+                </li>
+                <li>
                     <router-link :to="{ name: 'income-list' }" class="capitalize text-md font-semibold">Income
                     </router-link>
                 </li>

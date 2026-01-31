@@ -9,4 +9,12 @@ class ExpenseItem extends Model
 {
     /** @use HasFactory<\Database\Factories\ExpenseItemFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'name_en',
+        'name_bn',
+        'slug',
+        'category',
+        'is_active',
+    ];
 }

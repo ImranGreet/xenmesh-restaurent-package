@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ExpenseItemController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -55,14 +56,22 @@ Route::controller(StaffController::class)
     });
 
 
-Route::controller(ExpenseController::class)
-    ->middleware('auth:sanctum')
-    ->group(function () {
+Route::controller(ExpenseController::class)->group(function () {
 
         Route::get('/expenses', 'index');
         Route::post('/create-expense', 'store');
         Route::put('/update-expense/{id}', 'update');
         Route::delete('/delete-expense/{id}', 'destroy');
+    });
+
+
+Route::controller(ExpenseItemController::class)
+    ->group(function () {
+
+        Route::get('/expense-items', 'index');
+        Route::post('/create-expense-item', 'store');
+        Route::put('/update-expense-item/{id}', 'update');
+        Route::delete('/delete-expense-item/{id}', 'destroy');
     });
 
 Route::controller(IncomeController::class)

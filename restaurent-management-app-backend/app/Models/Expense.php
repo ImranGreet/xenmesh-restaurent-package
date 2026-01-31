@@ -12,10 +12,10 @@ class Expense extends Model
 
     protected $fillable = [
         'title',
-        'category',
+        'description',
         'amount',
+        'category',
         'expense_date',
-        'status',
-        'note',
+        'created_by',
     ];
 }
