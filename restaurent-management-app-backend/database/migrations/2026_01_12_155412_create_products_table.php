@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name_en');
             $table->string('name_bn')->nullable();
             $table->string('slug')->unique();
+            $table->boolean('status')->default(1);
             $table->decimal('price', 10, 2)->default(0);
             $table->text('description_en')->nullable();
             $table->text('description_bn')->nullable();

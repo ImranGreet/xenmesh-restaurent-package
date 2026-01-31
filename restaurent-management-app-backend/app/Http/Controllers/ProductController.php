@@ -10,7 +10,7 @@ use Throwable;
 
 class ProductController extends Controller
 {
-        /**
+    /**
      * Get products with filters & pagination
      */
     public function index(Request $request)
@@ -65,7 +65,6 @@ class ProductController extends Controller
                     'total'        => $products->total(),
                 ]
             ], 200);
-
         } catch (Throwable $e) {
             Log::error('Product Fetch Error', ['error' => $e->getMessage()]);
 
@@ -86,8 +85,7 @@ class ProductController extends Controller
                 'name'        => 'required|string|max:255',
                 'category_id' => 'required|integer|exists:categories,id',
                 'price'       => 'required|numeric|min:0',
-                'stock'       => 'required|integer|min:0',
-                'status'      => 'required|in:active,inactive',
+                'stock'       => 'integer|min:0',
                 'description' => 'nullable|string',
             ]);
 
@@ -98,14 +96,12 @@ class ProductController extends Controller
                 'message' => 'Product created successfully.',
                 'data' => $product
             ], 201);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed.',
                 'errors' => $e->errors()
             ], 422);
-
         } catch (Throwable $e) {
             Log::error('Product Create Error', ['error' => $e->getMessage()]);
 
@@ -147,14 +143,12 @@ class ProductController extends Controller
                 'message' => 'Product updated successfully.',
                 'data' => $product->fresh()
             ], 200);
-
-        } catch (ValidationException $e) { 
+        } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed.',
                 'errors' => $e->errors()
             ], 422);
-
         } catch (Throwable $e) {
             Log::error('Product Update Error', [
                 'product_id' => $id,
@@ -187,10 +181,9 @@ class ProductController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Product deleted successfully.' 
+                'message' => 'Product deleted successfully.'
             ], 200);
-
-        } catch (Throwable $e) { 
+        } catch (Throwable $e) {
             Log::error('Product Delete Error', [
                 'product_id' => $id,
                 'error' => $e->getMessage()
@@ -202,7 +195,41 @@ class ProductController extends Controller
             ], 500);
         }
     }
+
+
+    public function toggleStatus($id)
+{
+    try {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Product not found.'
+            ], 404);
+        }
+
+        // Toggle status
+        $product->status = $product->status === 1 ? 0 : 1;
+        $product->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product status updated successfully.',
+            'data' => $product->fresh()
+        ], 200);
+
+    } catch (Throwable $e) {
+        Log::error('Product Status Toggle Error', [
+            'product_id' => $id,
+            'error' => $e->getMessage()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to update product status.'
+        ], 500);
+    }
 }
 
-
-
+}

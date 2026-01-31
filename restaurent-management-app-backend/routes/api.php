@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExpenseItemController;
@@ -42,6 +43,7 @@ Route::controller(ProductController::class)->group(function () {
     Route::post('/create-product', 'store');
     Route::put('/update-product/{id}', 'update');
     Route::delete('/delete-product/{id}', 'destroy');
+    Route::get('/update-product-status/{id}', 'toggleStatus');
 });
 
 
@@ -90,3 +92,9 @@ Route::controller(DashboardController::class)
     ->group(function () {
         Route::get('/dashboard/stats', 'stats');
     });
+
+
+
+Route::controller(CategoryController::class)->group(function () {
+    Route::get('/retrieve-product-categories', 'retriveProductCategories');
+});

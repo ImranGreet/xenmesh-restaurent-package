@@ -1,7 +1,5 @@
 <template>
-
-
-    <div class="w-full flex flex-col gap-4">
+    <form class="w-full flex flex-col gap-4">
         <!-- Image Upload -->
         <div class="w-full flex flex-col gap-4 border border-gray-400/35 px-3 py-2 rounded-lg">
             <label for="description" class="block text-sm font-medium text-gray-700">Upload
@@ -38,8 +36,8 @@
                 <label for="product-name" class="block text-sm font-medium text-gray-700 mb-2">Input
                     Sku</label>
                 <div class="card flex justify-center">
-                    <Select v-model="selectedCity" :options="cities" optionLabel="name" placeholder="Select a City"
-                        class="w-full" />
+                    <Select v-model="selectedUnit" :options="restaurantUnits" optionLabel="name"
+                        placeholder="Select a Unit" class="w-full" />
                 </div>
             </div>
         </div>
@@ -61,29 +59,53 @@
         <div>
             <label for="product-name" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
             <div class="card flex justify-center">
-                <Select v-model="selectedCity" :options="cities" optionLabel="name" placeholder="Select a City"
-                    class="w-full" />
+                <Select v-model="selectedCategory" :options="productCategories" optionLabel="slug"
+                    placeholder="Select a Category" class="w-full" />
             </div>
         </div>
-    </div>
+    </form>
 
 </template>
 
 <script lang="ts" setup>
 import { InputText, FileUpload, Select, InputNumber, Textarea, ToggleSwitch } from 'primevue';
 
-import { ref } from 'vue';
+import useProductStore from '../../../store/products';
+
+const productsStore = useProductStore();
+const { retrieveProductCategories,  } = productsStore;
+const { productCategories } = storeToRefs(productsStore);
+
+
+import { onMounted, ref } from 'vue';
+import { storeToRefs } from 'pinia';
 
 const value = ref('');
 
 const checked = ref(false);
 
-const selectedCity = ref();
-const cities = ref([
-    { name: 'New York', code: 'NY' },
-    { name: 'Rome', code: 'RM' },
-    { name: 'London', code: 'LDN' },
-    { name: 'Istanbul', code: 'IST' },
-    { name: 'Paris', code: 'PRS' }
-]);
+const selectedUnit = ref();
+interface Unit {
+    id: number;
+    name: string;
+}
+
+const restaurantUnits: Unit[] = [
+    { id: 1, name: "pcs" },
+    { id: 2, name: "kg" },
+    { id: 3, name: "g" },
+    { id: 4, name: "ltr" },
+    { id: 5, name: "ml" },
+    { id: 6, name: "dozen" },
+    { id: 7, name: "packet" },
+    { id: 8, name: "box" },
+    { id: 9, name: "cup" },
+    { id: 10, name: "slice" }
+];
+
+const selectedCategory = ref();
+
+onMounted(() => {
+    retrieveProductCategories();
+})
 </script>
