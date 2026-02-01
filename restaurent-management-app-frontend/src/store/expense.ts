@@ -147,6 +147,7 @@ export const useExpenseStore = defineStore("expenses", () => {
         // Remove from local array
         expenses.value = expenses.value.filter((e) => e.id !== expense.id);
         alert("Expense deleted successfully!");
+        await fetchExpenses();
       } catch (error) {
         console.error("Failed to delete expense", error);
         alert("Failed to delete expense!");
