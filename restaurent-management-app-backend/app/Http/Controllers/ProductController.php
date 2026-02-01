@@ -108,12 +108,12 @@ class ProductController extends Controller
         try {
             $validated = $request->validate([
                 'name_en'        => 'required|string|max:255',
-                'name_bn'        => 'string|max:255',
+                'name_bn'        => 'nullable|string|max:255',
                 'category_id' => 'required|integer|exists:categories,id',
                 'unit_id'     => 'nullable|integer|exists:restaurant_units,id',
                 'price'       => 'required|numeric|min:0',
                 'stock'       => 'nullable|integer|min:0',
-                'status'      => 'required|in:0,1',
+                'status'      => 'nullable|in:0,1',
                 'description_en' => 'nullable|string',
                 'description_bn' => 'nullable|string',
                 'product_thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:1024',
@@ -166,13 +166,32 @@ class ProductController extends Controller
             }
 
             $validated = $request->validate([
-                'name'        => 'sometimes|string|max:255',
-                'category_id' => 'sometimes|integer|exists:categories,id',
-                'price'       => 'sometimes|numeric|min:0',
-                'stock'       => 'sometimes|integer|min:0',
-                'status'      => 'sometimes|in:active,inactive',
-                'description' => 'nullable|string',
+                'name_en'        => 'required|string|max:255',
+                'name_bn'        => 'nullable|string|max:255',
+                'category_id' => 'required|integer|exists:categories,id',
+                'unit_id'     => 'nullable|integer|exists:restaurant_units,id',
+                'price'       => 'required|numeric|min:0',
+                'stock'       => 'nullable|integer|min:0',
+                'status'      => 'nullable|in:0,1',
+                'description_en' => 'nullable|string',
+                'description_bn' => 'nullable|string',
+                'product_thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:1024',
             ]);
+
+            // ✅ Handle thumbnail replacement
+            if ($request->hasFile('product_thumbnail')) {
+                // Delete old thumbnail if exists
+                if ($product->product_thumbnail && Storage::disk('public')->exists($product->product_thumbnail)) {
+                    Storage::disk('public')->delete($product->product_thumbnail);
+                }
+
+                // Store new thumbnail
+                $validated['product_thumbnail'] = $request->file('product_thumbnail')->store('products', 'public');
+            } else {
+                // Keep old thumbnail if no new image uploaded
+                unset($validated['product_thumbnail']);
+            }
+
 
             $product->update($validated);
 

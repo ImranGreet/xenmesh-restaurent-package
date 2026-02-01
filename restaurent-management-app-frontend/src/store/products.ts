@@ -144,19 +144,19 @@ export const useProductStore = defineStore("product-store", () => {
   // Update product
   const updateProduct = async (
     id: number,
-    payload: {
-      name?: string;
-      category_id?: number;
-      price?: number;
-      stock?: number;
-      description?: string;
-    },
+    payload: FormData,
   ): Promise<Product | null> => {
     updatingIds.value.push(id);
     error.value = null;
 
     try {
-      const response = await axios.put(`/api/products/${id}`, payload);
+      const response = await axios.post(`/api/products/${id}`, payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "X-HTTP-Method-Override": "PUT", // important for Laravel PUT + FormData
+        },
+      });
+
       const index = products.value.findIndex((p) => p.id === id);
       if (index !== -1) products.value[index] = response.data.data;
       return response.data.data;

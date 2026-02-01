@@ -60,7 +60,7 @@
                 <Column header="Action" class="text-end">
                     <template #body="slotProps">
                         <div class="flex gap-0.5 justify-end">
-                            <Button type="button" label="edit" class="action-btn">
+                            <Button type="button" label="edit" class="action-btn" @click="editProduct(slotProps.data)">
                                 <svg class="w-5 h-5 ">
                                     <use href="#pencil-icon-edit" />
                                 </svg>
@@ -123,27 +123,13 @@
                                     </div>
                                 </div>
 
-                                <!-- Product Name -->
-                                <div
-                                    class="w-full flex justify-between items-center border border-gray-300 rounded-md px-3 py-1 ">
-                                    <div class="flex flex-col gap-2">
-                                        <label for="product-name"
-                                            class="block w-full text-sm font-medium text-gray-700">Product
-                                            Status</label>
-                                        <span>Enable show or hide products</span>
-                                    </div>
-                                    <div class="card flex justify-center">
-                                        <ToggleSwitch v-model="checked" />
-                                    </div>
-                                </div>
-
                                 <div class="w-full flex flex-col  md:flex-row gap-5">
                                     <!-- Product Name -->
                                     <div class="w-full">
                                         <label for="product-name"
                                             class="block text-sm font-medium text-gray-700 mb-2">Product
                                             Name</label>
-                                        <InputText v-model="form.name" type="text" id="product-name" name="product-name"
+                                        <InputText v-model="form.name_en" type="text" id="product-name" name="product-name"
                                             placeholder="Enter product name"
                                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                     </div>
@@ -226,26 +212,15 @@ const visible = ref(false);
 
 const visibleProductInfo = ref(false);
 const productsStore = useProductStore();
-const { retrieveProducts, toggleProductStatus, retrieveProductCategories, createProduct, deleteProduct, retrieveRestaurantUnits } = productsStore;
+const { retrieveProducts, toggleProductStatus, retrieveProductCategories, createProduct, deleteProduct, retrieveRestaurantUnits, updateProduct } = productsStore;
 const { products, meta, productCategories, restaurantUnits } = storeToRefs(productsStore);
-
-
-const selectedUnit = ref();
-interface Unit {
-    id: number;
-    name: string;
-}
-
-
-const checked = ref(false);
-
-
 
 
 // Product Form
 interface ProductForm {
     id?: number | null;
-    name: string;
+    name_en: string;
+    name_bn: string;
     category_id: number | null;
     unit_id?: number | null;
     price: number;
@@ -258,7 +233,8 @@ interface ProductForm {
 
 const form = reactive<ProductForm>({
     id: null,
-    name: "",
+    name_en: "",
+    name_bn: "",
     category_id: null,
     unit_id: null,
     price: 0,
@@ -269,6 +245,21 @@ const form = reactive<ProductForm>({
     productThumbnail: null,
 });
 
+// Reset Form
+const resetForm = () => {
+    form.id = null;
+    form.name_en = "";
+    form.name_bn = "";
+    form.category_id = null;
+    form.unit_id = null;
+    form.price = 0;
+    form.stock = 0;
+    form.descriptionEnglish = "";
+    form.descriptionBangla = "";
+    form.productThumbnail = null;
+};
+
+// Create or Update Product
 const submitProduct = async (event: Event) => {
     event.preventDefault();
 
@@ -278,28 +269,63 @@ const submitProduct = async (event: Event) => {
     }
 
     const formData = new FormData();
-
-    formData.append("name_en", form.name);
-    formData.append("name_bn", form.name);
+    formData.append("name_en", form.name_en);
+    formData.append("name_bn", form.name_bn?? "");
     formData.append("category_id", String(form.category_id));
     formData.append("unit_id", String(form.unit_id ?? ""));
     formData.append("price", String(form.price));
     formData.append("stock", String(form.stock));
-    formData.append("status", String(form.status));
+    if (form.status !== undefined && form.status !== null) {
+        formData.append("status", String(form.status));
+    }
     formData.append("description_en", form.descriptionEnglish);
     formData.append("description_bn", form.descriptionBangla);
 
+    // Only append thumbnail if a new file is selected
     if (form.productThumbnail) {
         formData.append("product_thumbnail", form.productThumbnail);
     }
 
-    await createProduct(formData);
-    fetchProducts();
+    try {
+        if (form.id) {
+            // Update existing product
+            await updateProduct(form.id, formData);
+        } else {
+            // Create new product
+            await createProduct(formData);
+        }
+
+        await fetchProducts(); // refresh the table
+        resetForm();
+        visibleProductInfo.value = false;
+    } catch (err) {
+        console.error("Failed to submit product:", err);
+        alert("An error occurred while saving the product.");
+    }
 };
 
 
 const onThumbnailSelect = (event: any) => {
     form.productThumbnail = event.files[0];
+};
+
+
+
+// Populate form for editing
+const editProduct = (product: any) => {
+    form.id = product.id;
+    form.name_en = product.name_en || "";
+    form.name_bn = product.name_bn || "";
+    form.category_id = product.category_id || null;
+    form.unit_id = product.unit_id || null;
+    form.price = product.price || 0;
+    form.stock = product.stock || 0;
+    form.status = product.status ?? 1;
+    form.descriptionEnglish = product.description_en || "";
+    form.descriptionBangla = product.description_bn || "";
+    form.productThumbnail = null; // reset thumbnail, user must re-upload if needed
+
+    visibleProductInfo.value = true;
 };
 
 onMounted(async () => {
