@@ -47,15 +47,12 @@
                     </router-link>
                 </li>
             </ul>
-            <div class="w-full flex flex-col justify-start px-3 mt-5">
-                <AuthGurd></AuthGurd>
-            </div>
+            
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import AuthGurd from '../Auth/AuthGurd.vue';
 
 </script>
 

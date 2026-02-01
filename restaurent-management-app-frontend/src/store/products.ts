@@ -13,7 +13,6 @@ export interface Product {
   description?: string;
   created_at?: string;
   updated_at?: string;
-  // add other fields if needed
 }
 
 // Pagination meta interface
@@ -30,10 +29,25 @@ export interface ProductCategory {
   name: string;
 }
 
+export interface RestaurantUnit {
+  id: number;
+  name: string;
+  created_at: string; // ISO date string
+  updated_at: string; // ISO date string
+}
+
+// Full API response interface
+export interface RestaurantUnitResponse {
+  success: boolean;
+  data: RestaurantUnit[];
+}
+
 export const useProductStore = defineStore("product-store", () => {
   // State
   const products = ref<Product[]>([]);
   const productCategories = ref<ProductCategory[]>([]);
+  // Restaurant units state
+  const restaurantUnits = ref<RestaurantUnit[]>([]);
   const meta = ref<PaginationMeta>({
     current_page: 1,
     last_page: 1,
@@ -46,12 +60,20 @@ export const useProductStore = defineStore("product-store", () => {
   // Check if a product is updating
   const isUpdating = (id: number) => updatingIds.value.includes(id);
 
-  // Fetch products with pagination
-  const retrieveProducts = async (page = 1) => {
+  // Fetch products with pagination, search, filter, and sorting
+  const retrieveProducts = async (
+    params: {
+      page?: number;
+      per_page?: number;
+      search?: string;
+      category_id?: number;
+      status?: 0 | 1;
+      sort_by?: string;
+      sort_dir?: "asc" | "desc";
+    } = {},
+  ) => {
     try {
-      const response = await axios.get(
-        `http://127.0.0.1:8000/api/products?page=${page}`,
-      );
+      const response = await axios.get("/api/products", { params });
       products.value = response.data.data;
       meta.value = response.data.meta;
     } catch (err) {
@@ -72,9 +94,7 @@ export const useProductStore = defineStore("product-store", () => {
     product.status = product.status === 1 ? 0 : 1; // optimistic toggle
 
     try {
-      const res = await axios.get(
-        `http://127.0.0.1:8000/api/update-product-status/${id}`,
-      );
+      const res = await axios.patch(`/api/products/${id}/status`);
       if (res.data?.data) {
         Object.assign(product, res.data.data); // sync with backend
       }
@@ -93,7 +113,7 @@ export const useProductStore = defineStore("product-store", () => {
   // Retrieve product categories
   const retrieveProductCategories = async () => {
     try {
-      const response = await axios.get(`/api/retrieve-product-categories`);
+      const response = await axios.get("/api/retrieve-product-categories");
       productCategories.value = response.data.data;
     } catch (err: any) {
       error.value = err.response?.data ?? {
@@ -103,25 +123,20 @@ export const useProductStore = defineStore("product-store", () => {
   };
 
   // Create product
-  const createProduct = async (payload: {
-    name: string;
-    category_id: number;
-    price: number;
-    stock?: number;
-    description?: string;
-  }): Promise<Product | null> => {
+  const createProduct = async (payload: FormData) => {
     error.value = null;
+
     try {
-      const response = await axios.post(
-        `http://127.0.0.1:8000/api/create-product`,
-        payload,
-      );
-      products.value.unshift(response.data.data); // add new product to start
+      const response = await axios.post("/api/products", payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      products.value.unshift(response.data.data);
       return response.data.data;
     } catch (err: any) {
-      error.value = err.response?.data ?? {
-        message: "Failed to create product",
-      };
+      error.value = err.response?.data;
       return null;
     }
   };
@@ -139,15 +154,11 @@ export const useProductStore = defineStore("product-store", () => {
   ): Promise<Product | null> => {
     updatingIds.value.push(id);
     error.value = null;
+
     try {
-      const response = await axios.put(
-        `http://127.0.0.1:8000/api/update-product/${id}`,
-        payload,
-      );
+      const response = await axios.put(`/api/products/${id}`, payload);
       const index = products.value.findIndex((p) => p.id === id);
-      if (index !== -1) {
-        products.value[index] = response.data.data;
-      }
+      if (index !== -1) products.value[index] = response.data.data;
       return response.data.data;
     } catch (err: any) {
       error.value = err.response?.data ?? {
@@ -163,8 +174,9 @@ export const useProductStore = defineStore("product-store", () => {
   const deleteProduct = async (id: number): Promise<boolean> => {
     updatingIds.value.push(id);
     error.value = null;
+
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/delete-product/${id}`);
+      await axios.delete(`/api/products/${id}`);
       products.value = products.value.filter((p) => p.id !== id);
       return true;
     } catch (err: any) {
@@ -177,12 +189,28 @@ export const useProductStore = defineStore("product-store", () => {
     }
   };
 
+  // Retrieve restaurant units
+  const retrieveRestaurantUnits = async () => {
+    try {
+      const response = await axios.get<RestaurantUnitResponse>(
+        "/api/restaurant-units",
+      );
+      restaurantUnits.value = response.data.data;
+      console.log(response, "units");
+    } catch (err: any) {
+      error.value = err.response?.data ?? {
+        message: "Failed to fetch restaurant units",
+      };
+    }
+  };
+
   return {
     products,
     meta,
     error,
     updatingIds,
     productCategories,
+    restaurantUnits,
     isUpdating,
     retrieveProducts,
     toggleProductStatus,
@@ -190,6 +218,7 @@ export const useProductStore = defineStore("product-store", () => {
     createProduct,
     updateProduct,
     deleteProduct,
+    retrieveRestaurantUnits,
   };
 });
 

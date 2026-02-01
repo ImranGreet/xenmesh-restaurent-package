@@ -4,7 +4,7 @@
             <h1 class="px-3 pt-2 text-2xl font-semibold">Products</h1>
             <div class="flex flex-col md:flex-row gap-2 px-2 md:px-0">
                 <div class="flex flex-col gap-2">
-                    <InputText name="username" type="text" placeholder="Search Products" />
+                    <InputText v-model="searchQuery" @input="onSearch" placeholder="Search Products" />
                 </div>
                 <div class="flex gap-2">
                     <Button type="button">
@@ -36,10 +36,19 @@
                 @page="onPageChange">
 
                 <Column field="id" header="Id" />
+                <Column header="Image">
+                    <template #body="slotProps">
+                        <div class="w-20 h-20 flex justify-center items-center">
+                            <img :src="slotProps.data.product_thumbnail_url" alt="Product"
+                                class="w-full h-full object-cover rounded" />
+                        </div>
+                    </template>
+                </Column>
                 <Column field="name_bn" header="Name" />
                 <Column field="name_en" header="Name" />
                 <Column field="category" header="Category" />
                 <Column field="stock" header="Stock" />
+                <Column field="price" header="Price" />
                 <Column field="status" header="Status">
                     <template #body="slotProps">
                         <Badge severity="success" v-if="slotProps.data.status === 1">Active</Badge>
@@ -48,7 +57,7 @@
                 </Column>
 
                 <!-- Action Column -->
-                <Column header="Action" class="flex justify-end">
+                <Column header="Action" class="text-end">
                     <template #body="slotProps">
                         <div class="flex gap-0.5 justify-end">
                             <Button type="button" label="edit" class="action-btn">
@@ -56,7 +65,8 @@
                                     <use href="#pencil-icon-edit" />
                                 </svg>
                             </Button>
-                            <Button type="button" class="action-btn delete">
+                            <Button type="button" class="action-btn delete"
+                                @click="deleteProductById(slotProps.data.id)">
                                 <svg class="w-5 h-5 ">
                                     <use href="#trash-icon" />
                                 </svg>
@@ -92,14 +102,14 @@
         <Dialog v-model:visible="visibleProductInfo" modal header="Add New Product" :style="{ width: '45rem' }">
             <!-- Slide Drawer Form -->
             <div class=" bg-white  z-50">
-                <div class="p-6">
+                <div class="p-0">
                     <!-- Header -->
                     <h2 class="text-2xl font-semibold mb-4">Product Information</h2>
 
                     <!-- Form -->
                     <form class="space-y-4">
 
-                        <div class="w-full" v-if="productInformation.showBasicInfo">
+                        <div class="w-full">
                             <div class="w-full flex flex-col gap-4">
                                 <!-- Image Upload -->
                                 <div class="w-full flex flex-col gap-4 border border-gray-400/35 px-3 py-2 rounded-lg">
@@ -107,9 +117,9 @@
                                         File</label>
 
                                     <div class="card w-full flex justify-center">
-                                        <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*"
-                                            :maxFileSize="1000000" @upload="" :auto="true" chooseLabel="Browse"
-                                             />
+                                        <FileUpload @select="onThumbnailSelect" mode="basic" name="demo[]"
+                                            url="/api/upload" accept="image/*" :maxFileSize="1000000" :auto="true"
+                                            chooseLabel="Browse" />
                                     </div>
                                 </div>
 
@@ -133,8 +143,8 @@
                                         <label for="product-name"
                                             class="block text-sm font-medium text-gray-700 mb-2">Product
                                             Name</label>
-                                        <InputText type="text" v-model="productName" id="product-name"
-                                            name="product-name" placeholder="Enter product name"
+                                        <InputText v-model="form.name" type="text" id="product-name" name="product-name"
+                                            placeholder="Enter product name"
                                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                     </div>
                                     <!-- category -->
@@ -143,25 +153,31 @@
                                             class="block text-sm font-medium text-gray-700 mb-2">Input
                                             Sku</label>
                                         <div class="card flex justify-center">
-                                            <Select v-model="selectedUnit" :options="restaurantUnits" optionLabel="name"
-                                                placeholder="Select a Unit" class="w-full" />
+                                            <Select v-model="form.unit_id" :options="restaurantUnits" optionLabel="name"
+                                                optionValue="id" placeholder="Select a Unit" class="w-full" />
                                         </div>
                                     </div>
                                 </div>
 
 
                                 <!-- Price -->
-                                <div>
-                                    <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
-                                    <InputNumber v-model="productPrice" inputId="integeronly" fluid />
+                                <div class="w-full flex flex-col  md:flex-row gap-5">
+                                    <div class="w-full">
+                                        <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+                                        <InputNumber v-model="form.price" inputId="integeronly" fluid />
 
+                                    </div>
+                                    <div class="w-full">
+                                        <label for="price" class="block text-sm font-medium text-gray-700">Takeway
+                                            Price</label>
+                                        <InputNumber inputId="integeronly" fluid disabled />
+                                    </div>
                                 </div>
-
                                 <!-- Description -->
                                 <div>
                                     <label for="description"
                                         class="block text-sm font-medium text-gray-700">Description</label>
-                                    <Textarea v-model="productDetails" rows="2" cols="10"
+                                    <Textarea v-model="form.descriptionEnglish" rows="2" cols="10"
                                         class="w-full border border-gray-400/35 rounded-md" />
                                 </div>
                                 <!-- category -->
@@ -169,36 +185,21 @@
                                     <label for="product-name"
                                         class="block text-sm font-medium text-gray-700 mb-2">Category</label>
                                     <div class="card flex justify-center">
-                                        <Select v-model="selectedCategory" :options="productCategories"
-                                            optionLabel="slug" placeholder="Select a Category" class="w-full" />
+                                        <Select v-model="form.category_id" :options="productCategories"
+                                            optionLabel="slug" optionValue="id" placeholder="Select a Category"
+                                            class="w-full" />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="w-full" v-if="productInformation.showPricingInfo">
-                            <div class="w-full flex flex-col gap-4">
 
-                                <!-- Price -->
-                                <div>
-                                    <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
-                                    <InputNumber inputId="integeronly" fluid />
-                                </div>
-                                <div>
-                                    <label for="price" class="block text-sm font-medium text-gray-700">Takeway
-                                        Price</label>
-                                    <InputNumber inputId="integeronly" fluid />
-                                </div>
-
-                            </div>
-
-                        </div>
                     </form>
                 </div>
             </div>
             <!-- Submit Button -->
             <div class="pt-4 w-full flex justify-end gap-5">
-                <Button type="submit" class="w-auto">
+                <Button @click="submitProduct" type="submit" class="w-auto">
                     Submit
                 </Button>
                 <Button type="submit" severity="danger" class="w-auto">
@@ -207,16 +208,14 @@
                 <Button class="w-auto" @click="visibleProductInfo = false">
                     Cancel
                 </Button>
-                <Button class="w-auto border border-gray-400/30" @click="addNext" severity="secondary">
-                    Next
-                </Button>
+
             </div>
         </Dialog>
     </section>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import { Button, Column, DataTable, Dialog, InputText, FileUpload, Select, InputNumber, Textarea, ToggleSwitch, Badge } from 'primevue';
 import useProductStore from '../../store/products';
 import { storeToRefs } from 'pinia';
@@ -227,22 +226,9 @@ const visible = ref(false);
 
 const visibleProductInfo = ref(false);
 const productsStore = useProductStore();
-const { retrieveProducts, toggleProductStatus, retrieveProductCategories, createProduct } = productsStore;
-const { products, meta, productCategories } = storeToRefs(productsStore);
+const { retrieveProducts, toggleProductStatus, retrieveProductCategories, createProduct, deleteProduct, retrieveRestaurantUnits } = productsStore;
+const { products, meta, productCategories, restaurantUnits } = storeToRefs(productsStore);
 
-
-const productInformation = ref({
-    showBasicInfo: true,
-    showPricingInfo: false,
-    showVariantInfo: false,
-});
-
-
-
-const addNext = function () {
-    productInformation.value.showBasicInfo = !productInformation.value.showBasicInfo;
-    productInformation.value.showPricingInfo = !productInformation.value.showPricingInfo;
-}
 
 const selectedUnit = ref();
 interface Unit {
@@ -251,51 +237,98 @@ interface Unit {
 }
 
 
-const value = ref('');
-
 const checked = ref(false);
 
-const restaurantUnits: Unit[] = [
-    { id: 1, name: "pcs" },
-    { id: 2, name: "kg" },
-    { id: 3, name: "g" },
-    { id: 4, name: "ltr" },
-    { id: 5, name: "ml" },
-    { id: 6, name: "dozen" },
-    { id: 7, name: "packet" },
-    { id: 8, name: "box" },
-    { id: 9, name: "cup" },
-    { id: 10, name: "slice" }
-];
 
-const selectedCategory = ref();
+
+
+// Product Form
+interface ProductForm {
+    id?: number | null;
+    name: string;
+    category_id: number | null;
+    unit_id?: number | null;
+    price: number;
+    stock: number;
+    status: 0 | 1;
+    descriptionEnglish: string;
+    descriptionBangla: string;
+    productThumbnail: File | null;
+}
+
+const form = reactive<ProductForm>({
+    id: null,
+    name: "",
+    category_id: null,
+    unit_id: null,
+    price: 0,
+    stock: 0,
+    status: 1,
+    descriptionEnglish: "",
+    descriptionBangla: "",
+    productThumbnail: null,
+});
+
+const submitProduct = async (event: Event) => {
+    event.preventDefault();
+
+    if (!form.category_id) {
+        alert("Please select a category");
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("name_en", form.name);
+    formData.append("name_bn", form.name);
+    formData.append("category_id", String(form.category_id));
+    formData.append("unit_id", String(form.unit_id ?? ""));
+    formData.append("price", String(form.price));
+    formData.append("stock", String(form.stock));
+    formData.append("status", String(form.status));
+    formData.append("description_en", form.descriptionEnglish);
+    formData.append("description_bn", form.descriptionBangla);
+
+    if (form.productThumbnail) {
+        formData.append("product_thumbnail", form.productThumbnail);
+    }
+
+    await createProduct(formData);
+    fetchProducts();
+};
+
+
+const onThumbnailSelect = (event: any) => {
+    form.productThumbnail = event.files[0];
+};
 
 onMounted(async () => {
     await retrieveProducts();
     await retrieveProductCategories();
+    await retrieveRestaurantUnits();
 });
 
-const onPageChange = (event) => {
-    retrieveProducts(event.page + 1);
+
+
+// UI State
+const searchQuery = ref("");
+
+// methods
+const fetchProducts = async (page = 1) => {
+    await retrieveProducts({ page, per_page: meta.value.per_page, search: searchQuery.value || undefined });
 };
 
-let productName = ref("");
-let categoryId = ref<number>();
-let productPrice = ref<number>();
-let productStock = ref<number>();
-let productDetails = ref<string>("");
+const onPageChange = (event: { page: number }) => fetchProducts(event.page + 1);
 
-let payload = {
-    name: productName.value,
-    category_id: categoryId,
-    price: productPrice.value,
-    stock: productStock.value,
-    description: productDetails.value
-}
 
-let productSubmit = async function () {
-    await createProduct(payload);
-}
+const onSearch = () => fetchProducts();
+
+const deleteProductById = async (id: number) => {
+    await deleteProduct(id);
+    fetchProducts();
+};
+
+
 </script>
 
 

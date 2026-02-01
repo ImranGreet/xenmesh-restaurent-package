@@ -8,6 +8,7 @@ use App\Http\Controllers\ExpenseItemController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RestaurantUnitController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Route;
@@ -39,11 +40,11 @@ Route::middleware('auth:sanctum')->controller(OrderController::class)->group(fun
 
 
 Route::controller(ProductController::class)->group(function () {
-    Route::get('/products', 'index');
-    Route::post('/create-product', 'store');
-    Route::put('/update-product/{id}', 'update');
-    Route::delete('/delete-product/{id}', 'destroy');
-    Route::get('/update-product-status/{id}', 'toggleStatus');
+    Route::get('/products', 'index');              // list + filter + search
+    Route::post('/products', 'store');             // create
+    Route::put('/products/{id}', 'update');        // update
+    Route::delete('/products/{id}', 'destroy');    // delete
+    Route::patch('/products/{id}/status', 'toggleStatus'); // status toggle
 });
 
 
@@ -98,4 +99,10 @@ Route::controller(DashboardController::class)
 
 Route::controller(CategoryController::class)->group(function () {
     Route::get('/retrieve-product-categories', 'retriveProductCategories');
+});
+
+
+
+Route::controller(RestaurantUnitController::class)->group(function () {
+    Route::get('/restaurant-units', 'retrieveUnits');
 });

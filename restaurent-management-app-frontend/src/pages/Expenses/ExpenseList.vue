@@ -94,6 +94,24 @@
                         <small v-if="errors.amount" class="text-red-600">{{ errors.amount }}</small>
                     </div>
 
+                    
+                </div>
+                <div class="w-full flex gap-2 flex-col sm:flex-row">
+                    <!-- Category -->
+                    <div class="w-full flex flex-col">
+                        <label for="category" class="font-medium">Category</label>
+                        <Select id="category" v-model="form.category" :options="categories" optionLabel="label"
+                            optionValue="value" placeholder="Select Category" class="w-full" />
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="w-full flex flex-col">
+                        <label for="amount" class="font-medium">Amount <span class="text-red-500">*</span></label>
+                        <InputNumber id="amount" v-model="form.amount" mode="currency" currency="BDT" locale="en-BD"
+                            class="w-full" />
+                        <small v-if="errors.amount" class="text-red-600">{{ errors.amount }}</small>
+                    </div>
+
                     <!-- Expense Date -->
                     <div class="w-full flex flex-col">
                         <label for="expense_date" class="font-medium">Expense Date <span

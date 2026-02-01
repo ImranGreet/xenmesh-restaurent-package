@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             ExpenseItemSeeder::class,
             CategorySeeder::class,
             ExpenseSeeder::class,
+            RestaurantUnitSeeder::class,
         ]);
     }
 }
